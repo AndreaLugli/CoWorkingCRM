@@ -1,0 +1,122 @@
+{% extends 'crm_base.html' %}
+
+{% load static %}
+
+	
+{% block action_area%}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-sm-12">
+		<h2>Account</h2>
+		<ol class="breadcrumb">
+			<li>
+				<a href="{% url 'crm_index' %}">Home</a>
+			</li>
+			<li> 
+				<a href="{% url 'crm_accounts_id' account.id %}">{{account}}</a>
+			</li>
+			<li class="active"> 
+				<strong>Modifica dell'account</strong>
+			</li>
+		</ol>
+	</div>	
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			{{ message }}
+		</div>
+	{% endfor %}
+
+	{% if account.is_freelancer %}
+
+		<div class="row">
+			<form id="freelancer_form" method="POST">
+				<div class="col-lg-4">
+					{% csrf_token %}
+					<div class="form-group">
+						<label for="email">Email</label>
+						<input type="text" class="form-control" id="email" name="email" required value="{{account.members.all.0.email}}">
+					</div>								
+					<div class="form-group">
+						<label for="first_name">Nome</label>
+						<input type="text" class="form-control" id="first_name" name="first_name" required value="{{account.members.all.0.first_name}}">
+					</div>	
+					<div class="form-group">
+						<label for="last_name">Cognome</label>
+						<input type="text" class="form-control" id="last_name" name="last_name" required value="{{account.members.all.0.last_name}}">
+					</div>	
+					<div class="form-group">
+						<label for="cellphone">Numero di cellulare</label>
+						<input type="text" class="form-control" id="cellphone" name="cellphone" required value="{{account.members.all.0.cellphone}}">
+					</div>			
+					<div class="form-group">
+						<label><input type="checkbox" value="true" name="is_active" {% if account.status == "ACT" %}checked{%endif%} > L'account è attivo?</label>
+					</div>				
+					<button type="submit" class="btn btn-primary">Salvare le modifiche</button>
+				</div>
+			</form>
+		</div>
+		
+	{% else %}
+		<div class="row">
+			<div class="col-lg-4">
+				<form method="POST">
+					{% csrf_token %}
+					<div class="form-group">
+						<label for="name">Nome del gruppo/azienda</label>
+						<input type="text" class="form-control" id="name" name="name" required value="{{account.name}}">
+					</div>	
+					<div class="form-group">
+						<label><input type="checkbox" value="true" name="is_active" {% if account.status == "ACT" %}checked{%endif%} > L'account è attivo?</label>
+					</div>				
+					<button type="submit" class="btn btn-primary">Salvare le modifiche</button>		
+				</form>
+			</div>	
+			<div class="col-lg-8">
+				<div class="ibox float-e-margins">
+					<div class="ibox-title">
+						<h5>Membri di {{account}}</h5>
+					</div>
+					<div class="ibox-content">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Nome</th>
+									<th>Email</th>
+									<th>Numero di cellulare</th>
+									<th>È attivo?</th>
+									<th>È amministratore dell'account?</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for member in account.members.all %}
+								<tr class='tr-hover' onclick="document.location = '{% url 'crm_accounts_id_edit_member' account.id member.id %}';"> 
+									<td>{{member.get_full_name}}</td>
+									<td>{{member.email}}</td>
+									<td>{{member.cellphone}}</td>
+									<td>{% if member.is_active %}Si{% else %}No{% endif %}</td>
+									<td>{% if member.is_primary_user %}Si{% else %}No{% endif %}</td>
+								</tr>
+								{% endfor %}							
+							</tbody>
+						</table>						
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+</div>
+{% endblock %}
+
+{% block functions %}
+{% endblock %}
+
+
+

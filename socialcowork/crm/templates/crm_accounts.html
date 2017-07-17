@@ -1,0 +1,141 @@
+{% extends 'crm_base.html' %}
+
+{% load static %}
+
+	
+{% block action_area%}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-sm-4">
+		<h2>Account</h2>
+	</div>
+	<div class="col-sm-8">
+		<div class="title-action">
+			<a href="{% url 'crm_accounts_new' %}" class="btn btn-primary">Nuovo account</a>
+		</div>
+	</div>		
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+	{% if locations %}
+		{% if accounts %}
+			<!--
+			<div class="row">
+				<div class="col-lg-12" id="view_1">
+					<div class="tabs-container">
+						<ul class="nav nav-tabs">
+							<li class="active"><a data-toggle="tab" href="#tab-1">Gruppi/Aziende</a></li>
+							<li class=""><a data-toggle="tab" href="#tab-2">Freelancer</a></li>
+						</ul>
+						<div class="tab-content">
+							<div id="tab-1" class="tab-pane active">
+								<div class="panel-body">
+									<div class="row">
+										{% for company in companies %}
+										<div class="col-lg-3">
+											<div class="contact-box center-version company-box">
+												<a href="{% url 'crm_accounts_id' company.id %}">
+													{% if company.logo %}
+													<img alt="image" width="150" class="img-circle" src="/media/logo{{company.logo}}">
+													{% else %}
+													<img alt="image" class="img-circle" src="http://placehold.it/150x150">
+													{% endif %}
+													<h4 class="m-b-xs"><strong>{{company.name}}</strong></h4>
+												</a>
+											</div>
+										</div>
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+							<div id="tab-2" class="tab-pane">
+								<div class="panel-body">
+									<div class="row">
+										{% for freelancer in freelancers %}
+										<div class="col-lg-3">
+											<div class="contact-box center-version">
+												<a href="{% url 'crm_accounts_id' freelancer.id %}">
+													{% if freelancer.members.get.profile_picture %}
+													<img alt="image" class="img-circle" src="/media/avatar{{freelancer.members.get.profile_picture}}">
+													{% else %}
+													<img alt="image" class="img-circle" src="http://placehold.it/150x150">
+													{% endif %}
+
+													<h4 class="m-b-xs"><strong>{{freelancer.name}}</strong></h4>
+												</a>
+											</div>
+										</div>										
+										{% endfor %}
+									</div>								
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>			
+			</div>
+			-->
+			
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="ibox float-e-margins">
+						<div class="ibox-content">
+
+							<table class="table">
+								<thead>
+								<tr>
+									<th>Account</th>
+									<th>Tipo</th>
+									<th>Data creazione</th>
+									<th>Stato account</th>
+									<th>Piani</th>
+								</tr>
+								</thead>
+								<tbody>
+								{% for account in accounts %}
+								<tr class='tr-hover' onclick="document.location = '{% url 'crm_accounts_id' account.id %}';">
+									<td>{{account}}</td>
+									<td>{% if account.is_freelancer %}Freelancer{% else %}Azienda/Gruppo{% endif %}</td>
+									<td>{{account.created_at|date:"d/m/Y"}}</td>
+									<td>{{account.get_status_display}}</td>
+									<td>
+										{% for sub in account.subscriptions %}
+											{% if forloop.last %}
+												{{sub.plan.name}} in {{sub.plan.location.name}} ({{sub.get_status_display}})
+											{% else %}
+												{{sub.plan.name}} in {{sub.plan.location.name}} ({{sub.get_status_display}}), 
+											{% endif %}
+										{% endfor %}
+									</td>
+								</tr>
+								{% endfor %}
+								</tbody>
+							</table>
+
+						</div>
+					</div>					
+				</div>
+			</div>
+
+		{% else %}
+			<div class="text-center animated">
+				<h3 class="font-bold">Attenzione!</h3>
+				Non sono presenti account.<br>
+				<a href="{% url 'crm_accounts_new' %}" class="btn btn-primary m-t">Crea un account</a>
+			</div>	
+		{% endif %}
+	{% else %}
+	<div class="text-center animated">
+		<h3 class="font-bold">Attenzione!</h3>
+		Nessuna sede presente.<br>
+		<a href="{% url 'crm_locations_new' %}" class="btn btn-primary m-t">Crea una sede</a>
+	</div>	
+	{% endif %}
+</div>
+{% endblock %}
+
+{% block functions %}
+{% endblock %}
+
+
+

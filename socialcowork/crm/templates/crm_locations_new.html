@@ -1,0 +1,97 @@
+{% extends 'crm_base.html' %}
+
+{% load static %}
+
+	
+{% block action_area%}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-sm-4">
+		<h2>Sedi</h2>
+		<ol class="breadcrumb">
+			<li>
+				<a href="{% url 'crm_index' %}">Home</a>
+			</li>
+			<li>
+				<a href="{% url 'crm_locations' %}">Sedi</a>
+			</li>
+			<li class="active"> 
+				<strong>Nuova sede</strong>
+			</li>
+		</ol>
+	</div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+	<div class="row">
+		<form method="POST">
+			{% csrf_token %}
+			<div class="col-md-4">
+				<div class="form-group">
+					<label>Nome della sede</label>
+					<input type="text" class="form-control" name="nome" placeholder="Nome">
+				</div>	
+				<div class="form-group">
+					<label>Indirizzo della sede</label>
+					<input type="text" class="form-control" name="indirizzo" placeholder="Indirizzo">
+				</div>	
+
+				<div class="row">	
+					<div class="form-group col-md-6">
+						<label for="hot_desk">Numero of Hot Desk</label>
+						<input type="number" class="form-control" name="hot_desk" id="hot_desk" required>
+					</div>
+					<div class="form-group col-md-6">
+						<label for="fix_desk">Numero of Fix Desk</label>
+						<input type="number" class="form-control" name="fix_desk" id="fix_desk" required>
+					</div>											
+				</div>
+			</div>
+			
+			<div class="col-md-5">
+				<div class="form-group">
+					<label for="meeting_rooms">Numero di sale riunioni</label>
+					<select class="form-control" name="meeting_rooms" id="meeting_rooms" required>
+						<option value="">Seleziona il numero di sale riunioni</option>
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+				</div>	
+				<div class="form-group" id="meeting_rooms_groups"></div>
+
+				<div class="form-group">
+					<label for="office_rooms">Numero di uffici privati</label>
+					<select class="form-control" name="office_rooms" id="office_rooms" required>
+						<option value="">Seleziona il numero di uffici privati</option>
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+				</div>
+
+				<div class="form-group" id="office_groups"></div>
+
+			</div>
+			
+			<div class="col-md-12">
+				<button type="submit" class="btn btn-primary">Creare la sede</button>
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}
+
+{% block functions %}
+<script type="text/javascript" src="{% static 'crm/crm_locations_new.js' %}"></script>
+{% endblock %}
+
+
+

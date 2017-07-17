@@ -1,0 +1,170 @@
+{% extends 'crm_base.html' %}
+
+{% load static %}
+
+{% block action_area %}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-sm-4">
+		<h2>Sede {{location}}</h2>
+		<ol class="breadcrumb">
+			<li>
+				<a href="{% url 'crm_index' %}">Home</a>
+			</li>
+			<li>
+				<a href="{% url 'crm_locations' %}" >Sedi</a>
+			</li>
+			<li> 
+				<a href="{% url 'crm_locations_id' location.id %}">{{location}}</a>
+			</li>
+			<li class="active"> 
+				<strong>Modifica</strong>
+			</li>
+		</ol>
+	</div>	
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			{{ message }}
+		</div>
+	{% endfor %}
+
+	<div class="row">
+		<div class="col-md-6">
+			<div class="ibox float-e-margins">
+				<div class="ibox-title">
+					<h5>Dati della sede</h5>
+				</div>
+				<div class="ibox-content">	
+					<form method="POST">
+						<input type="hidden" name="info_location" value="true">
+						{% csrf_token %}
+						<div class="form-group">
+							<label for="name">Nome della sede</label>
+							<input type="text" class="form-control" id="name" name="name" placeholder="Nome" value="{{location.name}}" required>
+						</div>
+						<div class="form-group">
+							<label for="address">Indirizzo della sede</label>
+							<input type="text" class="form-control" id="address" name="address" placeholder="Indirizzo" value="{{location.address}}" required>
+						</div>
+
+						<div class="row">	
+							<div class="form-group col-md-6">
+								<label for="hot_desk">Numero di of Hot Desk</label>
+								<input type="number" class="form-control" name="hot_desk" id="hot_desk" value="{{location.hot_desks_total}}" required>
+							</div>
+							<div class="form-group col-md-6">
+								<label for="fix_desk">Numero of Fix Desk</label>
+								<input type="number" class="form-control" name="fix_desk" id="fix_desk" value="{{location.fix_desks_total}}" required>
+							</div>											
+						</div>
+
+						<button type="submit" class="btn btn-primary">Salva</button>
+					</form>					
+				</div>
+			</div>		
+		</div>
+		<!--
+		<div class="col-md-6">
+			<div class="ibox float-e-margins">
+				<div class="ibox-title">
+					<h5>Office managers</h5>
+				</div>	
+				<div class="ibox-content">
+					<form role="form" method="POST">
+						<input type="hidden" name="community_managers" value="true">
+						{% csrf_token %}
+					</form>					
+				</div>			
+			</div>
+		</div>
+		-->
+	</div>
+
+	<div class="row">
+		<div class="col-md-6">
+			<div class="ibox-title">
+				<h5>Sale riunioni</h5>
+			</div>
+			<div class="ibox-content">
+				<button class="btn btn-primary pull-right" onclick="new_mr_row()">Aggiungi nuova</button>
+				<table class="table" onclick="editar_mr(event)">
+					<thead>
+						<tr>
+							<th>Nome</th>
+							<th>Posti</th>
+							<th>Costo per ora</th>
+							<th></th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody id="mr_tbody">
+						{% for mr in meeting_rooms %}
+						<tr data-mr="{{mr.id}}">
+							<td>{{mr.name}}</td>
+							<td>{{mr.seats}}</td>
+							<td>{{mr.price}}</td>
+							<td>
+								<button type="button" class="btn btn-primary btn-xs">Modifica</button>
+							</td>
+							<td>
+								<button type="button" class="btn btn-danger btn-xs">Cancella</button>
+							</td>								
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>				
+			</div>		
+		</div>
+		<div class="col-md-6">
+			<div class="ibox-title">
+				<h5>Uffici privati</h5>
+			</div>
+			<div class="ibox-content">
+				<button class="btn btn-primary pull-right" onclick="new_off_row()">Aggiungi nuovo</button>
+				<table class="table" onclick="editar_off(event)">
+					<thead>
+						<tr>
+							<th>Nome</th>
+							<th>Posti</th>
+							<th></th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody id="off_tbody">
+						{% for off in offices %}
+						<tr data-off="{{off.id}}">
+							<td>{{off.name}}</td>
+							<td>{{off.seats}}</td>
+							<td>
+								<button type="button" class="btn btn-primary btn-xs">Modifica</button>
+							</td>									
+							<td>
+								<button type="button" class="btn btn-danger btn-xs">Cancella</button>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>			
+			</div>			
+		</div>
+	</div>
+
+</div>
+{% endblock %}
+
+{% block functions %}
+<script type="text/javascript">
+	var location_id = {{location.id}};
+</script>
+<script src="{% static "crm/crm_locations_id_edit.js" %}"></script>
+{% endblock %}
+
+
+

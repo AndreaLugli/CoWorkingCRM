@@ -1,0 +1,248 @@
+{% extends 'crm_base.html' %}
+
+{% load static %}
+
+{% block style %}
+<link href="{% static 'template/css/plugins/datapicker/datepicker3.css' %}" rel="stylesheet">
+{% endblock %}
+
+	
+{% block action_area %}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-sm-4">
+		<h2>Pagamenti</h2>
+		<ol class="breadcrumb">
+			<li>
+				<a href="{% url 'crm_index' %}">Home</a>
+			</li>
+			<li class="active">
+				<strong>Pagamenti</strong>
+			</li>
+		</ol>
+	</div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			{{ message }}
+		</div>
+	{% endfor %}
+
+	{% if locations %}
+		<div class="row">
+			<div class="col-lg-3">
+				<div class="ibox">
+					<div class="ibox-content">
+						<h5>Ricavi totali</h5>
+						<h1 class="no-margins">€{{total_income}}</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-title">
+						<h5>Pagamenti mensili (<em>Dati inseriti solo ai fini dimostrativi</em>)</h5>
+					</div>
+					<div class="ibox-content">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="flot-chart">
+									<div class="flot-chart-content" id="flot-bar-chart"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="tabs-container">
+					<ul class="nav nav-tabs">
+						<li class="active"><a data-toggle="tab" href="#tab-1">Fattura del mese corrente</a></li>
+						<li class=""><a data-toggle="tab" href="#tab-2">Fatture non pagate</a></li>
+						<li class=""><a data-toggle="tab" href="#tab-3">Fatture pagate</a></li>
+					</ul>
+					<div class="tab-content">
+						<div id="tab-1" class="tab-pane active">
+							<div class="panel-body">								
+								<div class="table-responsive">
+									<table class="table table-striped table-bordered table-hover dataTables-example" id="futuros_pagos_table" >
+										<thead>
+											<tr>
+												<th>Account</th>
+												<th>Piani</th>
+												<th>Periodo</th>
+												<th>Sede</th>
+												<th>Totale piani</th>
+												<th>Ore extra</th>
+												<th>Totale da pagare</th>	
+												<th></th>										
+											</tr>
+										</thead>
+										<tbody>
+											{% for invoice in current_invoices %}
+											<tr>
+												<td>{{invoice.account}}</td>
+												<td>{{invoice.get_planes}}</td>
+												<td>{{invoice.get_period}}</td>
+												<td>{{invoice.get_locations}}</td>
+												<td>€{{invoice.monthly_total}}</td>
+												<td>€{{invoice.extra_mr_to_pay}}</td>
+												<td>€{{invoice.total_to_pay}}</td>
+												<td>
+													{% if invoice.is_paid %}
+														Pagato
+													{% else %}
+														<button onclick="agregar_pago_mensual('{{invoice.id}}','{{invoice.total_to_pay}}')" class="btn btn-xs btn-danger">Aggiungere pagamento</button>
+													{% endif %}
+												</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<div id="tab-2" class="tab-pane">
+							<div class="panel-body">
+								<div class="table-responsive">
+									<table class="table table-striped table-bordered table-hover dataTables-example" id="facturas_no_pagadas_table" >
+										<thead>
+											<tr>
+												<th>Account</th>
+												<th>Piani</th>
+												<th>Periodo</th>
+												<th>Sede</th>
+												<th>Totale piani</th>
+												<th>Ore extra</th>
+												<th>Totale da pagare</th>	
+												<th></th>										
+											</tr>
+										</thead>
+										<tbody>
+											{% for invoice in not_paid_invoices %}
+											<tr>
+												<td>{{invoice.account}}</td>
+												<td>{{invoice.get_planes}}</td>
+												<td>{{invoice.get_period}}</td>
+												<td>{{invoice.get_locations}}</td>
+												<td>€{{invoice.monthly_total}}</td>
+												<td>€{{invoice.extra_mr_to_pay}}</td>
+												<td>€{{invoice.total_to_pay}}</td>
+												<td>
+													{% if invoice.is_paid %}
+														Pagato
+													{% else %}
+														<button onclick="agregar_pago_mensual('{{invoice.id}}','{{factura.invoice}}')" class="btn btn-xs btn-danger">Aggiungere pagamento</button>
+													{% endif %}
+												</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<div id="tab-3" class="tab-pane">
+							<div class="panel-body">
+								<div class="table-responsive">
+									<table class="table table-striped table-bordered table-hover dataTables-example" id="facturas_no_pagadas_table" >
+										<thead>
+											<tr>
+												<th>Account</th>
+												<th>Piani</th>
+												<th>Periodo</th>
+												<th>Data pagamento</th>
+												<th>Sede</th>
+												<th>Totale piani</th>
+												<th>Ore extra</th>
+												<th>Totale pagato</th>									
+											</tr>
+										</thead>
+										<tbody>
+											{% for invoice in invoice_paid %}
+											<tr>
+												<td>{{invoice.account}}</td>
+												<td>{{invoice.get_planes}}</td>
+												<td>{{invoice.get_period}}</td>
+												<td>{{invoice.date_paid}}</td>
+												<td>{{invoice.get_locations}}</td>
+												<td>€{{invoice.monthly_total}}</td>
+												<td>€{{invoice.extra_mr_to_pay}}</td>
+												<td>€{{invoice.total_to_pay}}</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>																		
+					</div>
+				</div>
+			</div>
+		</div>	
+
+		<div class="modal inmodal" id="register_payment_futuros" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content animated bounceInRight">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"><span>&times;</span><span class="sr-only">Cerrar</span></button>
+						<h4 class="modal-title">Registrar pagamento</h4>
+					</div>
+
+					<div class="modal-body">
+						<form method="POST" action="{% url 'crm_add_payment' %}">
+							{% csrf_token %}
+
+                            <div class="form-group" id="data_1">
+                                <label class="font-normal">Data del pagamento</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input type="text" class="form-control"  name="created_at">
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="invoice_id" id="invoice_id">
+
+							<button type="submit" class="btn btn-primary">Registrare</button>
+						</form>		
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+	{% else %}
+	<div class="text-center animated">
+		<h3 class="font-bold">Attenzione!</h3>
+		Nessuna sede presente.<br>
+		<a href="{% url 'crm_locations_new' %}" class="btn btn-primary m-t">Crea una sede</a>
+	</div>
+	{% endif %}
+</div>
+{% endblock %}
+
+{% block functions %}
+<script type="text/javascript">
+	var barchart_val_list = [[1, 48384], [2, 45681], [3, 66023], [4, 72609], [5, 212414], [6, 84881]];
+</script>
+
+<script src="{% static "template/js/plugins/flot/jquery.flot.js" %}"></script>
+<script src="{% static "template/js/plugins/flot/jquery.flot.tooltip.min.js" %}"></script>
+<script src="{% static "template/js/plugins/flot/jquery.flot.resize.js" %}"></script>
+<script src="{% static "template/js/plugins/flot/jquery.flot.pie.js" %}"></script>
+<script src="{% static "template/js/plugins/flot/jquery.flot.time.js" %}"></script>
+<script src="{% static "template/js/plugins/datapicker/bootstrap-datepicker.js" %}"></script>
+<script type="text/javascript" src="{% static 'crm/index.js' %}"></script>
+{% endblock %}

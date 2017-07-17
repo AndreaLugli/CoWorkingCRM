@@ -1,0 +1,64 @@
+{% extends 'crm_base.html' %}
+
+{% load static %}
+
+	
+{% block action_area%}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-sm-4">
+		<h2>Account</h2>
+		<ol class="breadcrumb">
+			<li>
+				<a href="{% url 'crm_index' %}">Home</a>
+			</li>
+			<li> 
+				<a href="{% url 'crm_accounts_id' account.id %}">{{account}}</a>
+			</li>
+			<li class="active"> 
+				<strong>Nuovo piano</strong>
+			</li>
+		</ol>
+	</div>	
+	<div class="col-sm-8">
+		<div class="title-action">
+			<a href="{% url 'crm_accounts_id_new_plan' account.id %}" class="btn btn-primary">Aggiungi un piano mensile</a>
+		</div>
+	</div>	
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+	<div class="row">
+		<div class="col-md-4">
+			<form  method="POST">
+				{% csrf_token %}
+				<div class="form-group">
+					<label>Piani</label>
+					<select class="form-control" name="plan_id" required>
+						<option value="">Scegli il piano</option>
+						{% for location in locations %}
+							<optgroup label="{{location}}">
+								{% for plan in location.plans %}
+									<option value="{{plan.id}}">{{plan.name}} ({{plan.price}}€/Mese)</option>
+								{% endfor %}
+							</optgroup>
+						{% endfor %}
+					</select>
+				</div>
+
+				<button class="btn btn-primary pull-left m-t-n-xs" type="submit">
+					<strong>Creare</strong>
+				</button>
+			</form>
+		</div>		
+	</div>
+</div>
+{% endblock %}
+
+{% block functions %}
+<script type="text/javascript" src="{% static 'crm/crm_accounts_id_new_plan.js' %}"></script>
+{% endblock %}
+
+
+

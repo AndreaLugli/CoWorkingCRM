@@ -1,0 +1,67 @@
+{% extends 'crm_base.html' %}
+
+{% load static %}
+
+{% block style %}
+<link href="{% static 'libs/bootstrap-switch/css/bootstrap-switch.css' %}" rel="stylesheet">
+{% endblock %}
+	
+{% block action_area%}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-sm-12">
+		<h2>Account</h2>
+		<ol class="breadcrumb">
+			<li>
+				<a href="{% url 'crm_index' %}">Home</a>
+			</li>
+			<li> 
+				<a href="{% url 'crm_accounts_id' account.id %}">{{account}}</a>
+			</li>
+			<li class="active"> 
+				<strong>Modifica dell'abbonamento</strong>
+			</li>
+		</ol>
+	</div>	
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			{{ message }}
+		</div>
+	{% endfor %}
+	
+	<div class="row">
+		<div class="col-sm-6">
+			<h1>{{subscription.plan.name}} in {{subscription.plan.location.name}}<br>
+			<small>creato il {{subscription.created_at}}</small></h1>
+			<h3>Ore gratuite per utilizzare la sala riunione: {{subscription.plan.meeting_room_hours}}</h3>
+			<h4>{{subscription.plan.price}} € / mese</h4>
+			<form method="POST">
+				{% csrf_token %}
+				<div class="form-group">
+					<input type="checkbox" value="true" name="is_active" {% if subscription.status == "ACT" %}checked{% endif %}>
+				</div>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary">Salva</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+</div>
+{% endblock %}
+
+{% block functions %}
+<script src="{% static 'libs/bootstrap-switch/js/bootstrap-switch.js' %}"></script>
+<script type="text/javascript" src="{% static 'crm/crm_accounts_id_plan_id.js' %}"></script>
+{% endblock %}
+
+
+
