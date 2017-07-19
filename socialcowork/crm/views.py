@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from socialcowork.email_system import send_email_new_om
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse_lazy, reverse
@@ -12,10 +13,10 @@ from django.views.generic import View
 from django.contrib import messages
 from django.shortcuts import render
 from datetime import datetime, timedelta, date
-
 from locations.models import Location, MeetingRoom, Office
 from plans.models import Plan, Subscription, Invoice
-from main.models import Account, Member
+from main.models import Account, Member, ResetPassword
+import hashlib
 
 CRM_LOGIN_URL = reverse_lazy("crm_login")
 CRM_INDEX_URL = reverse_lazy("crm_index") 
@@ -48,6 +49,10 @@ class crm_payment(View):
 		return super(crm_payment, self).dispatch(*args, **kwargs)
 
 	def get(self, request, *args, **kwargs):
+		user = request.user
+		is_staff = user.is_staff
+		is_superuser = user.is_superuser
+
 		today = datetime.today()
 		current_month = today.month
 		current_year = today.year
@@ -64,6 +69,12 @@ class crm_payment(View):
 		for invoice in invoice_paid:
 			total_to_pay = invoice.total_to_pay()
 			total_income = total_income + total_to_pay
+
+		if is_staff and not is_superuser:
+			locations = locations.filter(office_managers = user)
+			current_invoices = current_invoices.filter(subscription__plan__location__office_managers = user)
+			not_paid_invoices = not_paid_invoices.filter(subscription__plan__location__office_managers = user)
+			invoice_paid = invoice_paid.filter(subscription__plan__location__office_managers = user)
 
 		data = {
 			"locations" : locations,
@@ -129,8 +140,14 @@ class crm_locations(View):
 		return super(crm_locations, self).dispatch(*args, **kwargs)
 
 	def get(self, request, *args, **kwargs):
-
+		user = request.user
+		is_staff = user.is_staff
+		is_superuser = user.is_superuser
+	
 		locations = Location.objects.all()
+
+		if is_staff and not is_superuser:
+			locations = locations.filter(office_managers = user)		
 
 		for loc in locations:
 			meeting_room = MeetingRoom.objects.filter(location = loc).count()
@@ -276,10 +293,16 @@ class crm_locations_id_edit(View):
 		meeting_rooms = MeetingRoom.objects.filter(location = location)
 		offices = Office.objects.filter(location = location)
 
+		office_managers = Member.objects.filter(is_staff = True, is_superuser = False)
+		office_managers_location = location.office_managers.all()
+		office_managers = office_managers.exclude(pk__in=office_managers_location)
+
 		data = {
 			"location" : location,
 			"meeting_rooms" : meeting_rooms,
-			"offices" : offices
+			"offices" : offices,
+			"office_managers" : office_managers,
+			"office_managers_location" : office_managers_location
 		}
 
 		template_name = "crm_locations_id_edit.html"
@@ -302,6 +325,15 @@ class crm_locations_id_edit(View):
 			location.fix_desks_total = fix_desk
 
 			location.save()
+
+		community_managers = request.POST.get("community_managers", None)
+		if community_managers:
+			location.office_managers.clear()
+
+			cm_in_location = request.POST.getlist("cm_in_location")
+			for cm in cm_in_location:
+				cm_obj = Member.objects.get(pk = cm)
+				location.office_managers.add(cm_obj)			
 
 		messages.success(request, 'Dati aggiornati con successo')
 
@@ -538,22 +570,22 @@ class crm_accounts(View):
 		return super(crm_accounts, self).dispatch(*args, **kwargs)
 
 	def get(self, request, *args, **kwargs):
+		user = request.user
+		is_staff = user.is_staff
+		is_superuser = user.is_superuser
 
 		locations = Location.objects.all()
-
 		accounts = Account.objects.filter()
+
+		if is_staff and not is_superuser:
+			locations = locations.filter(office_managers = user)	
 
 		for account in accounts:
 			subscriptions = Subscription.objects.filter(account = account)
 			account.subscriptions = subscriptions
 
-		#freelancers = accounts.filter(is_freelancer = True)
-		#companies = accounts.filter(is_freelancer = False)
-
 		data = {
 			"accounts" : accounts,
-			#"freelancers" : freelancers,
-			#"companies" : companies,
 			"locations" : locations
 		}
 
@@ -965,9 +997,16 @@ class crm_plans(View):
 		return super(crm_plans, self).dispatch(*args, **kwargs)
 
 	def get(self, request, *args, **kwargs):
-
-		plans = Plan.objects.all()
+		user = request.user
+		is_staff = user.is_staff
+		is_superuser = user.is_superuser
+	
 		locations = Location.objects.all()
+		plans = Plan.objects.all()
+
+		if is_staff and not is_superuser:
+			locations = locations.filter(office_managers = user)
+			plans = plans.filter(location__office_managers = user)
 
 		for location in locations:
 			offices = Office.objects.filter(location = location)
@@ -1012,5 +1051,108 @@ class crm_plans(View):
 		url = reverse('crm_plans')
 		return HttpResponseRedirect(url)
 
+class crm_new_office_manager(View):
+	@method_decorator(user_passes_test(lambda u:u.is_staff, login_url = CRM_LOGIN_URL))
+	def dispatch(self, *args, **kwargs):
+		return super(crm_new_office_manager, self).dispatch(*args, **kwargs)
 
+	def get(self, request, *args, **kwargs):
 
+		office_managers = Member.objects.filter(is_staff = True, is_superuser = False)
+
+		data = {
+			"office_managers" : office_managers
+		}
+
+		template_name = "crm_new_office_manager.html"
+		return render(request, template_name, data)
+
+	def post(self, request, *args, **kwargs):
+
+		email = request.POST['email']
+		first_name = request.POST['first_name']
+		last_name = request.POST['last_name']
+
+		check_email_existence = User.objects.filter(email = email).exists()
+
+		if check_email_existence:
+			messages.error(request, 'Email già presente nel sistema')
+			url = reverse('crm_new_office_manager')
+			return HttpResponseRedirect(url)
+
+		new_cm = Member.objects.create_user(
+			email = email,
+			username = email,
+			password = None,
+			first_name = first_name,
+			last_name = last_name,	
+			is_staff = True		
+		)
+
+		now = str(datetime.now()) + email
+		token = hashlib.sha224(now).hexdigest()
+
+		ResetPassword.objects.create(
+			user = new_cm,
+			token = token
+		)
+
+		send_email_new_om(email, first_name, token)		
+
+		messages.success(request, 'Office manager creato con successo')
+		url = reverse('crm_new_office_manager')
+		return HttpResponseRedirect(url)
+
+class crm_om_setpassword(View):
+	def dispatch(self, *args, **kwargs):
+		return super(crm_om_setpassword, self).dispatch(*args, **kwargs)
+
+	def get(self, request, token, *args, **kwargs):
+		resetpassword_obj = get_object_or_404(ResetPassword, token = token)
+		used = resetpassword_obj.used
+
+		data = {
+			"used" : used
+		}
+
+		template_name = "crm_om_setpassword.html"
+		return render(request, template_name, data)
+
+	def post(self, request, token, *args, **kwargs):
+		resetpassword_obj = get_object_or_404(ResetPassword, token = token)
+
+		password = request.POST['password']
+		password2 = request.POST['password2']	
+		
+		len_password = len(password)
+
+		if len_password < 8:
+
+			data = {
+				"too_short" : True
+			}
+
+			template_name = "crm_cm_setpassword.html"
+			response = render(request, template_name, data)
+
+		elif password != password2:
+
+			data = {
+				"no_match" : True
+			}
+
+			template_name = "crm_cm_setpassword.html"
+			response = render(request, template_name, data)
+
+		else:
+			resetpassword_obj.used = True
+			resetpassword_obj.save()
+
+			user = resetpassword_obj.user
+
+			user.set_password(password)
+			user.save()
+
+			response = HttpResponseRedirect(CRM_LOGIN_URL)
+
+		return response

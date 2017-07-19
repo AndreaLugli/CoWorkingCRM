@@ -1,6 +1,7 @@
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = True
+IS_LOCAL = True
 
 STATICFILES_DIRS = [
 	'/Users/riccardo/Desktop/Progetti/socialcowork/static',

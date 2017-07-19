@@ -9,6 +9,8 @@ class Location(models.Model):
 	hot_desks_total = models.IntegerField(default = 0)
 	fix_desks_total = models.IntegerField(default = 0)
 
+	office_managers = models.ManyToManyField("main.Member")
+
 	class Meta:
 		verbose_name = "Location"
 		verbose_name_plural = "Locations"

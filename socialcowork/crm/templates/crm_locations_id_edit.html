@@ -41,7 +41,7 @@
 				<div class="ibox-title">
 					<h5>Dati della sede</h5>
 				</div>
-				<div class="ibox-content">	
+				<div class="ibox-content">
 					<form method="POST">
 						<input type="hidden" name="info_location" value="true">
 						{% csrf_token %}
@@ -70,21 +70,41 @@
 				</div>
 			</div>		
 		</div>
-		<!--
 		<div class="col-md-6">
 			<div class="ibox float-e-margins">
 				<div class="ibox-title">
 					<h5>Office managers</h5>
 				</div>	
 				<div class="ibox-content">
-					<form role="form" method="POST">
-						<input type="hidden" name="community_managers" value="true">
-						{% csrf_token %}
+					<form method="POST">
+						{% if office_managers or office_managers_location %}
+							<input type="hidden" name="community_managers" value="true">
+							{% csrf_token %}
+							{% for cm in office_managers_location %}
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="cm_in_location" value="{{cm.id}}" checked="">
+										{{cm.get_full_name}} ({{cm.email}})
+									</label>
+								</div>						
+							{% endfor %}
+							{% for cm in office_managers %}
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="cm_in_location" value="{{cm.id}}">
+										{{cm.get_full_name}} ({{cm.email}})
+									</label>
+								</div>						
+							{% endfor %}
+							<button type="submit" class="btn btn-primary">Salva</button>
+						{% else %}
+							<strong>Attenzione!</strong> Non sono presenti Office Managers nella sede.<br>
+							<a href="{% url 'crm_new_office_manager' %}" class="btn btn-primary m-t">Aggiungi office manager</a>
+						{% endif %}					
 					</form>					
 				</div>			
 			</div>
 		</div>
-		-->
 	</div>
 
 	<div class="row">

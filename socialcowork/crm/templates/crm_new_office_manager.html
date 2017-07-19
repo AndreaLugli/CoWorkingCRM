@@ -1,0 +1,88 @@
+{% extends 'crm_base.html' %}
+
+{% load static %}
+
+{% block action_area %}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-sm-4">
+		<h2>Office Managers</h2>
+		<ol class="breadcrumb">
+			<li>
+				<a href="{% url 'crm_index' %}">Home</a>
+			</li>
+			<li class="active"> 
+				<strong>Office Manager</strong>
+			</li>
+		</ol>
+	</div>	
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			{{ message }}
+		</div>
+	{% endfor %}
+
+	<div class="row">
+		<div class="col-lg-6">
+			<div class="ibox float-e-margins">
+				<div class="ibox-title">
+					<h5>Crea un nuovo Office manager</h5>
+				</div>
+				<div class="ibox-content">
+					<div class="row">
+						<div class="col-lg-12">
+							<form role="form" method="POST">
+								{% csrf_token %}
+								<div class="form-group">
+									<label for="email_cm">Indirizzo email</label>
+									<input type="email" class="form-control" id="email_cm" name="email" placeholder="Email" required>
+								</div>
+								<div class="form-group">
+									<label for="first_name_cm">Nome</label>
+									<input type="text" class="form-control" id="first_name_cm" name="first_name" placeholder="First name" required>
+								</div>
+								<div class="form-group">
+									<label for="last_name_cm">Cognome</label>
+									<input type="text" class="form-control" id="last_name_cm" name="last_name" placeholder="Last name" required>
+								</div>
+								
+								<button class="btn btn-sm btn-primary pull-left" type="submit">
+									<strong>Crea</strong>
+								</button>
+								
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>			
+		</div>
+		<div class="col-lg-6">
+			{% if office_managers %}
+				<div class="ibox float-e-margins">
+					<div class="ibox-title">
+						<h5>Office managers creati</h5>
+					</div>
+					<div class="ibox-content">
+						{% for cm in office_managers %}
+						{{cm}}
+						{% endfor %}
+					</div>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block functions %}
+{% endblock %}
+
+
+

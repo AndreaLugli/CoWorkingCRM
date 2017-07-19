@@ -42,88 +42,93 @@
 	{% if plans %}
 
 		{% if subscriptions %}
-		
-		<div class="row">
-			<div class="col-lg-3">
-				<div class="ibox">
-					<div class="ibox-content">
-						<h5>Hot desk</h5>
-						<h2>{{hot_desk_active}}/{{location.hot_desks_total}}</h2>
-					</div>
-				</div>
-			</div>	
-			<div class="col-lg-3">
-				<div class="ibox">
-					<div class="ibox-content">
-						<h5>Fix desk</h5>
-						<h2>{{fix_desks_active}}/{{location.fix_desks_total}}</h2>
-					</div>
-				</div>
-			</div>	
-			<div class="col-lg-3">
-				<div class="ibox">
-					<div class="ibox-content">
-						<h5>Uffici privati</h5>
-						<h2>{{private_offices_active}}/{{private_offices_total}}</h2>
-					</div>
-				</div>
-			</div>					
-		</div>
 
-		<div class="row">
-			<div class="col-lg-12" id="view_1">
-				<div class="tabs-container">
-					<ul class="nav nav-tabs">
-						<li class="active"><a data-toggle="tab" href="#tab-1">Gruppi/Aziende</a></li>
-						<li class=""><a data-toggle="tab" href="#tab-2">Freelancer</a></li>
-					</ul>
-					<div class="tab-content">
-						<div id="tab-1" class="tab-pane active">
-							<div class="panel-body">
-								<div class="row">
-									{% for company in companies %}
-									<div class="col-lg-3">
-										<div class="contact-box center-version company-box">
-											<a href="{% url 'crm_accounts_id' company.id %}">
-												{% if company.logo %}
-												<img alt="image" width="150" class="img-circle" src="/media/logo{{company.logo}}">
-												{% else %}
-												<img alt="image" class="img-circle" src="http://placehold.it/150x150">
-												{% endif %}
-												<h4 class="m-b-xs"><strong>{{company.name}}</strong></h4>
-											</a>
+			{% if location.office_managers.all|length == 0 %}
+				<div class="alert alert-warning" role="alert">
+					<strong>Attenzione!</strong> Non sono presenti Office Managers nella sede.<br>
+					<a href="{% url 'crm_locations_id_edit' id %}" class="btn btn-primary m-t">Aggiungi office manager</a>
+				</div>
+			{% endif %}
+			<div class="row">
+				<div class="col-lg-3">
+					<div class="ibox">
+						<div class="ibox-content">
+							<h5>Hot desk</h5>
+							<h2>{{hot_desk_active}}/{{location.hot_desks_total}}</h2>
+						</div>
+					</div>
+				</div>	
+				<div class="col-lg-3">
+					<div class="ibox">
+						<div class="ibox-content">
+							<h5>Fix desk</h5>
+							<h2>{{fix_desks_active}}/{{location.fix_desks_total}}</h2>
+						</div>
+					</div>
+				</div>	
+				<div class="col-lg-3">
+					<div class="ibox">
+						<div class="ibox-content">
+							<h5>Uffici privati</h5>
+							<h2>{{private_offices_active}}/{{private_offices_total}}</h2>
+						</div>
+					</div>
+				</div>					
+			</div>
+
+			<div class="row">
+				<div class="col-lg-12" id="view_1">
+					<div class="tabs-container">
+						<ul class="nav nav-tabs">
+							<li class="active"><a data-toggle="tab" href="#tab-1">Gruppi/Aziende</a></li>
+							<li class=""><a data-toggle="tab" href="#tab-2">Freelancer</a></li>
+						</ul>
+						<div class="tab-content">
+							<div id="tab-1" class="tab-pane active">
+								<div class="panel-body">
+									<div class="row">
+										{% for company in companies %}
+										<div class="col-lg-3">
+											<div class="contact-box center-version company-box">
+												<a href="{% url 'crm_accounts_id' company.id %}">
+													{% if company.logo %}
+													<img alt="image" width="150" class="img-circle" src="/media/logo{{company.logo}}">
+													{% else %}
+													<img alt="image" class="img-circle" src="http://placehold.it/150x150">
+													{% endif %}
+													<h4 class="m-b-xs"><strong>{{company.name}}</strong></h4>
+												</a>
+											</div>
 										</div>
+										{% endfor %}
 									</div>
-									{% endfor %}
+								</div>
+							</div>
+							<div id="tab-2" class="tab-pane">
+								<div class="panel-body">
+									<div class="row">
+										{% for freelancer in freelancers %}
+										<div class="col-lg-3">
+											<div class="contact-box center-version">
+												<a href="{% url 'crm_accounts_id' freelancer.id %}">
+													{% if freelancer.members.get.profile_picture %}
+													<img alt="image" class="img-circle" src="/media/avatar{{freelancer.members.get.profile_picture}}">
+													{% else %}
+													<img alt="image" class="img-circle" src="http://placehold.it/150x150">
+													{% endif %}
+
+													<h4 class="m-b-xs"><strong>{{freelancer.name}}</strong></h4>
+												</a>
+											</div>
+										</div>										
+										{% endfor %}
+									</div>								
 								</div>
 							</div>
 						</div>
-						<div id="tab-2" class="tab-pane">
-							<div class="panel-body">
-								<div class="row">
-									{% for freelancer in freelancers %}
-									<div class="col-lg-3">
-										<div class="contact-box center-version">
-											<a href="{% url 'crm_accounts_id' freelancer.id %}">
-												{% if freelancer.members.get.profile_picture %}
-												<img alt="image" class="img-circle" src="/media/avatar{{freelancer.members.get.profile_picture}}">
-												{% else %}
-												<img alt="image" class="img-circle" src="http://placehold.it/150x150">
-												{% endif %}
-
-												<h4 class="m-b-xs"><strong>{{freelancer.name}}</strong></h4>
-											</a>
-										</div>
-									</div>										
-									{% endfor %}
-								</div>								
-							</div>
-						</div>
 					</div>
-				</div>
-			</div>			
-		</div>
-
+				</div>			
+			</div>
 		{% else %}
 			<div class="text-center animated">
 				<h3 class="font-bold">Attenzione!</h3>

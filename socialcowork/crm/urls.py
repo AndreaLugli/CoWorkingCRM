@@ -14,6 +14,8 @@ from .views import crm_accounts_id_plan_id
 from .views import crm_accounts_id_edit_member
 from .views import crm_payment
 from .views import crm_plans
+from .views import crm_new_office_manager
+from .views import crm_om_setpassword
 
 urlpatterns = [
 	url(r'^$', crm_accounts.as_view(), name = "crm_index"),
@@ -48,6 +50,9 @@ urlpatterns = [
 
 	url(r'^plans$', crm_plans.as_view(), name = "crm_plans"),
 
+	url(r'^new-office-manager$', crm_new_office_manager.as_view(), name = "crm_new_office_manager"),
+
 	url(r'^add-payment$', crm_add_payment.as_view(), name = "crm_add_payment"),
-	
+
+	url(r'^setpassword/(?P<token>[\w-]+)$', crm_om_setpassword.as_view(), name = "crm_om_setpassword"),	
 ]
