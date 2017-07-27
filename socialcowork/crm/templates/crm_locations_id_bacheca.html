@@ -1,0 +1,67 @@
+{% extends 'crm_base.html' %}
+
+{% load static %}
+
+{% block action_area %}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-sm-4">
+		<h2>Sede {{location}}</h2>
+		<ol class="breadcrumb">
+			<li>
+				<a href="{% url 'crm_index' %}">Home</a>
+			</li>
+			<li>
+				<a href="{% url 'crm_locations' %}" >Sedi</a>
+			</li>
+			<li> 
+				<a href="{% url 'crm_locations_id' location.id %}">{{location}}</a>
+			</li>
+			<li class="active"> 
+				<strong>Bacheca</strong>
+			</li>
+		</ol>
+	</div>	
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			{{ message }}
+		</div>
+	{% endfor %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<form id="post_feed" method="POST">
+				<div class="ibox float-e-margins">
+					<div class="ibox-title">
+						<h5>Messaggio</h5>
+					</div>
+					
+					<div class="ibox-content no-padding">
+						<textarea id="summernote" name="content"></textarea>
+					</div>
+				</div>
+				<button type="submit" class="btn btn-primary">Invia</button>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block functions %}
+<script type="text/javascript">
+	var url_send_file = "{% url 'upload_pic' %}";
+</script>
+<script src="{% static "template/js/plugins/summernote/summernote.min.js" %}"></script>
+<script src="{% static "crm/crm_bacheca.js" %}"></script>
+{% endblock %}
+
+
+

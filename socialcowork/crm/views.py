@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from socialcowork.email_system import send_email_new_om
+from socialcowork.email_system import send_email_new_om, send_password_new_user
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse_lazy, reverse
@@ -15,8 +14,14 @@ from django.shortcuts import render
 from datetime import datetime, timedelta, date
 from locations.models import Location, MeetingRoom, Office
 from plans.models import Plan, Subscription, Invoice
-from main.models import Account, Member, ResetPassword
+from main.models import Account, Member, ResetPassword, Feed
+from socialcowork.tools import genera_pass
+from django.conf import settings
 import hashlib
+import StringIO
+from PIL import Image
+
+NEW_MEDIA_URL = settings.MEDIA_ROOT + "/pics"
 
 CRM_LOGIN_URL = reverse_lazy("crm_login")
 CRM_INDEX_URL = reverse_lazy("crm_index") 
@@ -265,6 +270,8 @@ class crm_locations_id(View):
 		freelancers = accounts.filter(is_freelancer = True)
 		companies = accounts.filter(is_freelancer = False)
 
+		feeds = Feed.objects.filter(location = location).order_by("-created_at")
+
 		data = {
 			"location" : location,
 			"plans" : plans,
@@ -275,11 +282,42 @@ class crm_locations_id(View):
 			"private_offices_active" : private_offices_active,
 			"private_offices_total" : private_offices_total,
 			"companies" : companies,
-			"freelancers" : freelancers
+			"freelancers" : freelancers,
+			"feeds" : feeds
 		}
 
 		template_name = "crm_locations_id.html"
 		return render(request, template_name, data)
+
+class crm_locations_id_bacheca(View):
+	@method_decorator(user_passes_test(lambda u:u.is_staff, login_url = CRM_LOGIN_URL))
+	@method_decorator(csrf_exempt)
+	def dispatch(self, *args, **kwargs):
+		return super(crm_locations_id_bacheca, self).dispatch(*args, **kwargs)
+
+	def get(self, request, id, *args, **kwargs):
+		location = Location.objects.get(pk = id)
+
+		data = {
+			"location" : location,
+		}
+
+		template_name = "crm_locations_id_bacheca.html"
+		return render(request, template_name, data)
+
+	def post(self, request, id, *args, **kwargs):
+		user = request.user
+
+		content = request.POST['content']
+
+		location = Location.objects.get(pk = id)
+
+		Feed.objects.create(user = user, location = location, content = content)
+
+		messages.success(request, 'Messaggio inviato con successo')
+
+		url = reverse('crm_locations_id_bacheca', kwargs = {'id': id})
+		return HttpResponseRedirect(url)
 
 class crm_locations_id_edit(View):
 	@method_decorator(user_passes_test(lambda u:u.is_staff, login_url = CRM_LOGIN_URL))
@@ -836,10 +874,12 @@ class crm_accounts_new(View):
 				last_name = request.POST['last_name']
 				cellphone = request.POST['cellphone']
 
+				password = genera_pass()
+
 				new_member = Member.objects.create_user(
 					email = email,
 					username = email,
-					password = None,
+					password = password,
 					first_name = first_name,
 					last_name = last_name,
 					cellphone = cellphone,
@@ -853,7 +893,9 @@ class crm_accounts_new(View):
 					is_freelancer = is_freelancer_val,
 				)
 
-				account_obj.members.add(new_member)	
+				account_obj.members.add(new_member)
+
+				send_password_new_user(email, first_name, password)
 
 				url = reverse('crm_accounts_id', kwargs = {'id': account_obj.id})
 				return HttpResponseRedirect(url)
@@ -938,10 +980,12 @@ class crm_accounts_id_new_member(View):
 		else:
 			primary = False
 
+		password = genera_pass()
+
 		new_member = Member.objects.create_user(
 			email = email,
 			username = email,
-			password = None,
+			password = password,
 			first_name = first_name,
 			last_name = last_name,
 			cellphone = cellphone,
@@ -951,6 +995,8 @@ class crm_accounts_id_new_member(View):
 		account.members.add(new_member)
 
 		messages.success(request, 'Membro aggiunto con successo')
+
+		send_password_new_user(email, first_name, password)
 
 		url = reverse('crm_accounts_id', kwargs = {'id': id})
 		return HttpResponseRedirect(url)	
@@ -1156,3 +1202,31 @@ class crm_om_setpassword(View):
 			response = HttpResponseRedirect(CRM_LOGIN_URL)
 
 		return response
+
+@csrf_exempt
+def upload_pic(request):
+	f = request.FILES['file']
+	str = ""
+	for c in f.chunks():
+		str += c
+	imagefile  = StringIO.StringIO(str)
+	image = Image.open(imagefile)
+
+	now = datetime.now()
+	now_formatted = now.strftime("%Y-%m-%d_%H-%M")
+	token = hashlib.sha224(now_formatted).hexdigest()
+	outfile = NEW_MEDIA_URL + '/' + token + '.jpg'
+
+	image.save(outfile, "JPEG")
+
+	output = outfile.replace(NEW_MEDIA_URL , "")
+
+	#if IS_LOCAL:
+	#	output = "http://127.0.0.1:8000/media/pics" + output
+	#else: 
+	#	output = "http://app.edgecowork.com/media/pics" + output
+	
+	output = "http://127.0.0.1:8000/media/pics" + output
+	print output
+
+	return HttpResponse(output)

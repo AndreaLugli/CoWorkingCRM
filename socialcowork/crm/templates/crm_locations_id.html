@@ -2,8 +2,7 @@
 
 {% load static %}
 
-	
-{% block action_area%}
+{% block action_area %}
 <div class="row wrapper border-bottom white-bg page-heading">
 	<div class="col-sm-4">
 		<h2>Sede {{location}}</h2>
@@ -23,6 +22,7 @@
 		<div class="title-action">
 			<a href="{% url 'crm_locations_id_plans_new' id %}" class="btn btn-primary">Piani della sede</a>
 			<a href="{% url 'crm_locations_id_edit' id %}" class="btn btn-primary">Modificare la sede</a>
+			<a href="{% url 'crm_locations_id_bacheca' id %}" class="btn btn-primary">Invia messaggio in bacheca</a>
 		</div>
 	</div>		
 </div>
@@ -82,6 +82,7 @@
 						<ul class="nav nav-tabs">
 							<li class="active"><a data-toggle="tab" href="#tab-1">Gruppi/Aziende</a></li>
 							<li class=""><a data-toggle="tab" href="#tab-2">Freelancer</a></li>
+							<li class=""><a data-toggle="tab" href="#tab-3">Bacheca</a></li>
 						</ul>
 						<div class="tab-content">
 							<div id="tab-1" class="tab-pane active">
@@ -125,6 +126,38 @@
 									</div>								
 								</div>
 							</div>
+							<div id="tab-3" class="tab-pane">
+								<div class="panel-body">
+									{% for feed in feeds %}
+										<div class="social-feed-box">
+											<div class="social-avatar">
+												<!--
+												<a href="" class="pull-left">
+													{% if feed.member.profile_picture %}
+														<img alt="image" src="/media/avatar{{feed.member.profile_picture}}">
+													{% else %}
+														<img alt="image" src="{% static "img/default.png" %}">
+													{% endif %}
+												</a>
+												-->
+												
+												<div class="media-body">
+													<a href="#">
+														{{feed.user.get_full_name}}
+													</a>
+													<small class="text-muted">{{feed.created_at}}</small>
+													
+												</div>
+											</div>
+
+											<div class="social-body">
+												{{feed.content|safe}}
+											</div>
+										</div>
+
+									{% endfor %}								
+								</div>
+							</div>							
 						</div>
 					</div>
 				</div>			

@@ -16,6 +16,8 @@ from .views import crm_payment
 from .views import crm_plans
 from .views import crm_new_office_manager
 from .views import crm_om_setpassword
+from .views import crm_locations_id_bacheca
+from .views import upload_pic
 
 urlpatterns = [
 	url(r'^$', crm_accounts.as_view(), name = "crm_index"),
@@ -38,6 +40,8 @@ urlpatterns = [
 	url(r'^locations/(?P<id>[0-9]+)/edit/off/(?P<off_id>[0-9]+)/delete/$', crm_locations_id_edit_off_offid_delete.as_view(), name = "crm_locations_id_edit_off_offid_delete"),
 	url(r'^locations/(?P<id>[0-9]+)/plans/new$', crm_locations_id_plans_new.as_view(), name = "crm_locations_id_plans_new"),
 	url(r'^locations/(?P<id>[0-9]+)/plans/(?P<plan_id>[0-9]+)$', crm_locations_id_plans_id.as_view(), name = "crm_locations_id_plans_id"),
+	url(r'^locations/(?P<id>[0-9]+)/bacheca/new$', crm_locations_id_bacheca.as_view(), name = "crm_locations_id_bacheca"),
+
 
 	url(r'^accounts$', crm_accounts.as_view(), name = "crm_accounts"),
 	url(r'^accounts/new$', crm_accounts_new.as_view(), name = "crm_accounts_new"),
@@ -55,4 +59,5 @@ urlpatterns = [
 	url(r'^add-payment$', crm_add_payment.as_view(), name = "crm_add_payment"),
 
 	url(r'^setpassword/(?P<token>[\w-]+)$', crm_om_setpassword.as_view(), name = "crm_om_setpassword"),	
+	url(r'^upload_pic/$', upload_pic, name = "upload_pic"),	
 ]

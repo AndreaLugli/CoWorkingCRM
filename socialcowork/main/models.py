@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
+from locations.models import Location
 
 class Member(User):
 	cellphone = models.CharField(max_length = 200, null = True, blank = True)
@@ -42,3 +43,14 @@ class ResetPassword(models.Model):
 
 	def __unicode__(self):
 		return self.user.get_full_name()
+
+class Feed(models.Model):
+	user = models.ForeignKey(User)
+	content = models.TextField()
+	location = models.ForeignKey(Location)
+	created_at = models.DateTimeField(auto_now_add = True)
+	#created_at.editable = True
+	
+	class Meta:
+		verbose_name = "Feed"
+		verbose_name_plural = "Feed"

@@ -1,0 +1,79 @@
+{% extends 'app_base.html' %}
+
+{% load static %}
+
+	
+{% block action_area %}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-sm-4">
+		<h2>Invia messaggio in bacheca</h2>
+		<ol class="breadcrumb">
+			<li>
+				<a href="{% url 'app_index' %}">Home</a>
+			</li>
+			<li class="active"> 
+				<strong>Bacheca</strong>
+			</li>
+		</ol>
+	</div>	
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			{{ message }}
+		</div>
+	{% endfor %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<form id="post_feed" method="POST">
+				{% if locations_sub|length == 1 %}
+					<input type="hidden" name="location" value="{{locations_sub.0.id}}">
+				{% else %}
+				<div class="row">
+					<div class="col-md-4">
+						<div class="form-group">
+							<label>Scegli la sede</label>
+							<select class="form-control" name="location" required>
+								<option value="">Sede</option>
+								{% for location in locations_sub %}
+								<option value="{{location.id}}">{{location}}</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+				</div>
+				{% endif %}
+
+
+				<div class="ibox float-e-margins">
+					<div class="ibox-title">
+						<h5>Messaggio</h5>
+					</div>
+					
+					<div class="ibox-content no-padding">
+						<textarea id="summernote" name="content"></textarea>
+					</div>
+				</div>
+				<button type="submit" class="btn btn-primary">Invia</button>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block functions %}
+<script type="text/javascript">
+	var url_send_file = "{% url 'upload_pic' %}";
+</script>
+<script src="{% static "template/js/plugins/summernote/summernote.min.js" %}"></script>
+<script src="{% static "crm/crm_bacheca.js" %}"></script>
+{% endblock %}
+

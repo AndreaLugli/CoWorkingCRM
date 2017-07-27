@@ -36,3 +36,6 @@ def send_email_new_om(to, first_name, token):
 		Saluti!" % (first_name, url)
 
 	#send_email(sender, to, content, subject)
+
+def send_password_new_user(to, first_name, password):
+	print password
