@@ -84,6 +84,17 @@ MESSAGE_TAGS = {
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
+ADMINS = (
+	('Riccardo Russo', 'senblet@gmail.com'),
+)
+
+MANAGERS = ADMINS
+SERVER_EMAIL = 'socialcowork@socialcities.eu'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.socialcities.eu'
+EMAIL_HOST_USER = 'socialcowork@socialcities.eu'
+EMAIL_HOST_PASSWORD = 'socialc69879'
+EMAIL_PORT = 587
 
 if (LOCAL_NAME == "Riccardos-MBP.station") or (LOCAL_NAME == "Riccardos-MacBook-Pro.local"):
 	from settings_locale import *
