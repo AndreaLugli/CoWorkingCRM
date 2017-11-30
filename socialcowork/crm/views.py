@@ -569,10 +569,18 @@ class crm_locations_id_plans_id(View):
 		return render(request, template_name, data)
 
 	def post(self, request, id, plan_id, *args, **kwargs):
-
 		location = Location.objects.get(pk = id)
 
 		plan = get_object_or_404(Plan, location = location, pk = plan_id)
+
+		delete = request.POST.get("delete", None)
+		if delete:
+			
+			plan.delete()
+
+			messages.success(request, 'Piano eliminato con successo')
+			url = reverse('crm_locations_id_plans_new', kwargs = {'id': id})
+			return HttpResponseRedirect(url)			
 
 		offices = Office.objects.filter(location = location)
 
@@ -615,7 +623,7 @@ class crm_accounts(View):
 		is_superuser = user.is_superuser
 
 		locations = Location.objects.all()
-		accounts = Account.objects.filter()
+		accounts = Account.objects.filter().exclude(status="DEL")
 
 		if is_staff and not is_superuser:
 			locations = locations.filter(office_managers = user)	
@@ -657,6 +665,22 @@ class crm_accounts_id(View):
 
 		template_name = "crm_accounts_id.html"
 		return render(request, template_name, data)
+
+	def post(self, request, id, *args, **kwargs):
+		account = Account.objects.get(pk = id)
+		account.status = "DEL"
+		account.save()
+
+		Subscription.objects.filter(account = account).update(status = "INA")
+
+		messages.success(request, 'Account eliminato con successo')
+
+		url = reverse('crm_accounts')
+		return HttpResponseRedirect(url)	
+
+		
+
+
 
 class crm_accounts_id_plan_id(View):
 	@method_decorator(user_passes_test(lambda u:u.is_staff, login_url = CRM_LOGIN_URL))

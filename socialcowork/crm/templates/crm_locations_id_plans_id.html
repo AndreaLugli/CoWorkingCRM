@@ -42,7 +42,7 @@
 		<div class="col-sm-6">
 			<div class="ibox float-e-margins">
 				<div class="ibox-title">
-					<h5>Creare un nuovo piano per {{location}}</h5>
+					<h5>Modifica il piano in {{location}}</h5>
 				</div>
 				<div class="ibox-content">
 					<div class="row">
@@ -94,6 +94,16 @@
 									<strong>Salva modifiche</strong>
 								</button>													
 							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-12">
+
+							<form method="POST">
+								{% csrf_token %}
+								<input type="hidden" name="delete" value="true">
+								<button type="submit" class="btn btn-danger">Elimina il piano</button>
+							</form>							
 						</div>
 					</div>
 				</div>

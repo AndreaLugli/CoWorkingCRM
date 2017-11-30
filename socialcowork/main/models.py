@@ -19,8 +19,9 @@ class Account(models.Model):
 	members = models.ManyToManyField(Member)
 	
 	STATUS = (
-		('ACT', "Activo"),
-		('INA', 'Inactivo'),
+		('ACT', "Attivo"),
+		('INA', 'Inattivo'),
+		('DEL', "Eliminato")
 	)
 
 	status = models.CharField(max_length = 3, choices = STATUS, default = "ACT")

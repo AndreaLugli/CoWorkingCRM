@@ -18,6 +18,10 @@
 	</div>	
 	<div class="col-sm-8">
 		<div class="title-action">
+			<form method="POST" style="display:inline">
+				{% csrf_token %}
+				<button type="submit" class="btn btn-danger">Elimina l'account</button>
+			</form>
 			<a href="{% url 'crm_accounts_id_edit' account.id %}" class="btn btn-primary">Modifica l'account</a>
 			<a href="{% url 'crm_accounts_id_new_plan' account.id %}" class="btn btn-primary">Aggiungi un piano mensile</a>
 			{% if not account.is_freelancer %}
