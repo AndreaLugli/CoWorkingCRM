@@ -62,6 +62,7 @@
 										{% if offices %}
 										<option value="PO" {% if plan.type_of_plan == "PO" %}selected{% endif %}>Ufficio privato</option>
 										{% endif %}
+										<option class="CO" {% if plan.type_of_plan == "CO" %}selected{% endif %}>Consulenza</option>
 									</select>							
 								</div>
 

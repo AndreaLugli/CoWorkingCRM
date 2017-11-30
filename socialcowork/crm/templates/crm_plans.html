@@ -58,6 +58,7 @@
 														<option value="PO" data-ufficio="{{office.id}}" data-location="{{location.id}}">Ufficio privato ({{office.name}})</option>
 													{% endfor %}
 												{% endif %}
+												<option value="CO" data-location="{{location.id}}">Consulenza</option>
 											</optgroup>
 										{% endfor %}
 									</select>
@@ -134,7 +135,7 @@
 {% endblock %}
 
 {% block functions %}
-<script type="text/javascript" src="{% static 'crm/crm_plans.js' %}"></script>
+<script type="text/javascript" src="{% static 'crm/crm_plans.js' %}?v=1"></script>
 {% endblock %}
 
 

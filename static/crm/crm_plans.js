@@ -10,5 +10,6 @@ $("#tipo").change(function() {
 
 		id_location = $( this ).attr("data-location");
 		$("#location_id").val(id_location);
+		console.log("CIAOAOAOA")
 	});
 });

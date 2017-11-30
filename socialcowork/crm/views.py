@@ -169,7 +169,8 @@ class crm_locations(View):
 			fix_desks_active = subscriptions.filter(plan__type_of_plan = "FD").count()
 			loc.fd_active = fix_desks_active
 
-			private_offices_active = subscriptions.filter(plan__type_of_plan = "PO").count()
+			private_offices_active = subscriptions.filter(plan__type_of_plan = "PO").values("plan__office").distinct().count()
+
 			loc.po_active = private_offices_active
 
 
@@ -260,7 +261,8 @@ class crm_locations_id(View):
 		hot_desk_active = subscriptions.filter(plan__type_of_plan = "HD").count()
 		fix_desks_active = subscriptions.filter(plan__type_of_plan = "FD").count()
 
-		private_offices_active = subscriptions.filter(plan__type_of_plan = "PO").count()
+		private_offices_active = subscriptions.filter(plan__type_of_plan = "PO").values("plan__office").distinct().count()
+
 		private_offices_total = Office.objects.filter(location = location).count()
 
 		subs_accounts = subscriptions.values_list('account', flat = True)

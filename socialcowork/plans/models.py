@@ -16,7 +16,8 @@ class Plan(models.Model):
 	TYPES = (
 		("HD", "Hot Desk"),
 		("FD", "Fix Desk"),
-		("PO", "Private Office")
+		("PO", "Private Office"),
+		("CO", "Consulenza")
 	)
 
 	type_of_plan = models.CharField(max_length = 3, choices = TYPES)
